@@ -1,0 +1,13 @@
+{% for student in students %}
+    <p>
+        <strong>Name:</strong> {{ student.name }} <br>
+        <strong>Marks:</strong> {{ student.marks }} <br>
+        <strong>Total:</strong> {{ student.total }} <br>
+        <strong>Average:</strong> {{ student.average }} <br>
+
+        <a href="/delete/{{ loop.index0 }}">
+            <button>Delete</button>
+        </a>
+    </p>
+    <hr>
+{% endfor %}

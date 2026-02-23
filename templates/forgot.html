@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Forgot Username / Password</h2>
+
+<form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+        <label>Enter Phone Number</label>
+        <input type="text" name="phone" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-warning">Recover Account</button>
+</form>
+{% endblock %}

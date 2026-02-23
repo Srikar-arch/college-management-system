@@ -1,0 +1,121 @@
+from flask import Flask, render_template, request, redirect, url_for, session
+
+app = Flask(__name__)
+app.secret_key = "supersecretkey"
+
+students = []
+users = {}
+
+@app.route("/")
+def home():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    return render_template("index.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username in users and users[username] == password:
+            session["user"] = username
+            return redirect(url_for("home"))
+        else:
+            return "Invalid Credentials"
+
+    return render_template("login.html")
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username in users:
+            return "User already exists"
+
+        users[username] = password
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
+
+@app.route("/add", methods=["GET", "POST"])
+def add_student():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        name = request.form["name"]
+        mark1 = int(request.form["mark1"])
+        mark2 = int(request.form["mark2"])
+        mark3 = int(request.form["mark3"])
+
+        total = mark1 + mark2 + mark3
+        average = round(total / 3, 2)
+
+        student = {
+            "name": name,
+            "marks": [mark1, mark2, mark3],
+            "total": total,
+            "average": average
+        }
+
+        students.append(student)
+
+        return render_template("students.html", students=students)
+       
+    return render_template("add.html")
+
+@app.route("/students")
+def view_students():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    return render_template("students.html", students=students)
+
+
+@app.route("/delete/<int:index>")
+def delete_student(index):
+    if "user" not in session:
+        return redirect(url_for("login"))
+    
+    if 0 <= index < len(students):
+        students.pop(index)
+    return render_template("students.html", students=students)
+
+@app.route("/edit/<int:index>", methods=["GET", "POST"])
+def edit_student(index):
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if 0 <= index < len(students):
+        if request.method == "POST":
+            name = request.form["name"]
+            mark1 = int(request.form["mark1"])
+            mark2 = int(request.form["mark2"])
+            mark3 = int(request.form["mark3"])
+
+            total = mark1 + mark2 + mark3
+            average = round(total / 3, 2)
+
+            students[index] = {
+                "name": name,
+                "marks": [mark1, mark2, mark3],
+                "total": total,
+                "average": average
+            }
+
+            return render_template("students.html", students=students)
+
+        return render_template("edit.html", student=students[index])
+
+    return "Invalid student"
+
+if __name__ == "__main__":
+    app.run(debug=True)
